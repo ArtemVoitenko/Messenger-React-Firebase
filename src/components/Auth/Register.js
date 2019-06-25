@@ -13,7 +13,7 @@ export default class Register extends Component {
       passwordConfirmation: "",
       loading: false,
       errors: [],
-      usersRef: firebase.database.ref("users")
+      usersRef: firebase.database().ref("users")
     };
   }
   onInputChange = e => {
@@ -43,11 +43,11 @@ export default class Register extends Component {
             })
             .then(() => {
               this.saveUser(createdUser).then(() => {
-                console.log("user saved");
+                console.log(createdUser);
+                this.setState({
+                  loading: false
+                });
               });
-              // this.setState({
-              //   loading: false
-              // });
             })
             .catch(err => {
               this.setState({
@@ -57,7 +57,6 @@ export default class Register extends Component {
             });
         })
         .catch(catchedError => {
-          console.log(catchedError);
           const error = { message: catchedError.message };
           this.setState(({ errors }) => {
             return {
@@ -71,7 +70,7 @@ export default class Register extends Component {
   saveUser = createdUser => {
     return this.state.usersRef.child(createdUser.user.uid).set({
       name: createdUser.user.displayName,
-      avatar: createdUser.user.photoUrl
+      avatar: createdUser.user.photoURL
     });
   };
   isFormValid = () => {
