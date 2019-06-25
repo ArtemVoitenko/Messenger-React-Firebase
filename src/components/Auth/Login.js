@@ -78,48 +78,55 @@ export default class Login extends Component {
   };
   showErrors = errors => {
     return errors.map((error, i) => {
-      return <div key={i}>{error.message}</div>;
+      return (
+        <div className="error" key={i}>
+          {error.message}
+        </div>
+      );
     });
   };
   render() {
-    const {
-      username,
-      email,
-      password,
-      passwordConfirmation,
-      loading,
-      errors
-    } = this.state;
+    const { email, password, loading, errors } = this.state;
     return (
-      <form onSubmit={this.onFormSubmit} className="form">
-        <div className="form__header">
-          <div className="form__title">Login</div>
-        </div>
-        <div className="form__content">
-          <input
-            onChange={this.onInputChange}
-            type="email"
-            name="email"
-            value={email}
-            className="form__input"
-          />
-          <input
-            onChange={this.onInputChange}
-            type="password"
-            name="password"
-            value={password}
-            className="form__input"
-          />
-          <button type="submit" className="form__submit">
-            Login
-          </button>
-          {errors.length ? this.showErrors(errors) : null}
-          <Link to="/register" className="form__link">
-            Want to register?
-          </Link>
-        </div>
-        {loading ? <LoadingIndicator /> : null}
-      </form>
+      <div className="centrator">
+        <form onSubmit={this.onFormSubmit} className="form">
+          <div className="form__header">
+            <div className="form__title">Login</div>
+          </div>
+          <div className="form__content">
+            <label class="form__input">
+              <span class="form__label">E-mail</span>
+              <input
+                onChange={this.onInputChange}
+                type="email"
+                name="email"
+                value={email}
+                className="form__field"
+              />
+            </label>
+            <label class="form__input">
+              <span class="form__label">Password</span>
+              <input
+                onChange={this.onInputChange}
+                type="password"
+                name="password"
+                value={password}
+                className="form__field"
+              />
+            </label>
+
+            <button type="submit" className="button form__submit">
+              Submit
+            </button>
+
+            <Link to="/register" className="form__link">
+              Want to register?
+            </Link>
+            {errors.length ? this.showErrors(errors) : null}
+          </div>
+          {loading ? <LoadingIndicator /> : null}
+        </form>
+      </div>
     );
   }
 }

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import firebase from "../../firebase";
 import LoadingIndicator from "../LoadingIndicator";
 import { Link } from "react-router-dom";
+import md5 from "md5";
 export default class Register extends Component {
   constructor() {
     super();
@@ -11,7 +12,8 @@ export default class Register extends Component {
       password: "",
       passwordConfirmation: "",
       loading: false,
-      errors: []
+      errors: [],
+      usersRef: firebase.database.ref("users")
     };
   }
   onInputChange = e => {
@@ -32,10 +34,27 @@ export default class Register extends Component {
         .auth()
         .createUserWithEmailAndPassword(this.state.email, this.state.password)
         .then(createdUser => {
-          console.log(createdUser);
-          this.setState({
-            loading: false
-          });
+          createdUser.user
+            .updateProfile({
+              displayName: this.state.username,
+              photoURL: `http://gravatar.com/avatar/${md5(
+                createdUser.user.email
+              )}?d=identicon`
+            })
+            .then(() => {
+              this.saveUser(createdUser).then(() => {
+                console.log("user saved");
+              });
+              // this.setState({
+              //   loading: false
+              // });
+            })
+            .catch(err => {
+              this.setState({
+                errors: this.state.errors.concat(err),
+                loading: false
+              });
+            });
         })
         .catch(catchedError => {
           console.log(catchedError);
@@ -49,7 +68,12 @@ export default class Register extends Component {
         });
     }
   };
-
+  saveUser = createdUser => {
+    return this.state.usersRef.child(createdUser.user.uid).set({
+      name: createdUser.user.displayName,
+      avatar: createdUser.user.photoUrl
+    });
+  };
   isFormValid = () => {
     let errors = [];
     let error;
@@ -88,7 +112,11 @@ export default class Register extends Component {
   };
   showErrors = errors => {
     return errors.map((error, i) => {
-      return <div key={i}>{error.message}</div>;
+      return (
+        <div className="error" key={i}>
+          {error.message}
+        </div>
+      );
     });
   };
   render() {
@@ -101,49 +129,64 @@ export default class Register extends Component {
       errors
     } = this.state;
     return (
-      <form onSubmit={this.onFormSubmit} className="form">
-        <div className="form__header">
-          <div className="form__title">Register</div>
-        </div>
-        <div className="form__content">
-          <input
-            onChange={this.onInputChange}
-            type="text"
-            name="username"
-            value={username}
-            className="form__input"
-          />
-          <input
-            onChange={this.onInputChange}
-            type="email"
-            name="email"
-            value={email}
-            className="form__input"
-          />
-          <input
-            onChange={this.onInputChange}
-            type="password"
-            name="password"
-            value={password}
-            className="form__input"
-          />
-          <input
-            onChange={this.onInputChange}
-            type="password"
-            name="passwordConfirmation"
-            value={passwordConfirmation}
-            className="form__input"
-          />
-          <button type="submit" className="form__submit">
-            Submit
-          </button>
-          {errors.length ? this.showErrors(errors) : null}
-          <Link to="/login" className="form__link">
-            Already has an account?
-          </Link>
-        </div>
-        {loading ? <LoadingIndicator /> : null}
-      </form>
+      <div className="centrator">
+        <form onSubmit={this.onFormSubmit} className="form">
+          <div className="form__header">
+            <div className="form__title">Register</div>
+          </div>
+          <div className="form__content">
+            <label class="form__input">
+              <span class="form__label">Username</span>
+              <input
+                onChange={this.onInputChange}
+                type="text"
+                name="username"
+                value={username}
+                className="form__field"
+              />
+            </label>
+            <label class="form__input">
+              <span class="form__label">E-mail</span>
+              <input
+                onChange={this.onInputChange}
+                type="email"
+                name="email"
+                value={email}
+                className="form__field"
+              />
+            </label>
+            <label class="form__input">
+              <span class="form__label">Password</span>
+              <input
+                onChange={this.onInputChange}
+                type="password"
+                name="password"
+                value={password}
+                className="form__field"
+              />
+            </label>
+            <label class="form__input">
+              <span class="form__label">Confirm password</span>
+              <input
+                onChange={this.onInputChange}
+                type="password"
+                name="passwordConfirmation"
+                value={passwordConfirmation}
+                className="form__field"
+              />
+            </label>
+            <button type="submit" className="button form__submit">
+              Submit
+            </button>
+
+            <Link to="/login" className="form__link">
+              Already has an account?
+            </Link>
+            {errors.length ? this.showErrors(errors) : null}
+          </div>
+          {loading ? <LoadingIndicator /> : null}
+        </form>
+      </div>
     );
   }
 }

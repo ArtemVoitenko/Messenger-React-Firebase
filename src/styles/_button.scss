@@ -1,0 +1,20 @@
+.button {
+  max-width: 170px;
+  width: 100%;
+  padding: 12px 20px;
+  margin: 0 auto;
+  margin-top: auto;
+  background-color: $accent;
+  border-radius: 30px;
+  color: $white;
+  border: none;
+  font-family: "OpenSans";
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 12px;
+  letter-spacing: 1px;
+  transition: 0.2s;
+  &:hover {
+    background-color: darken($accent, 10%);
+  }
+}
